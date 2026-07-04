@@ -2,307 +2,570 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Expediente Clasificado: Misión Papel Reciclado</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        /* Variables de Color y Diseño - Estilo Formal y Oscuro */
+        /* ============================================
+           TOKENS — Expediente / Dossier de Laboratorio
+           ============================================ */
         :root {
-            --bg-dark: #070a13;
-            --bg-panel: #111a2e;
-            --bg-accent: #0f172a;
-            --text-main: #d1d5db;
-            --text-muted: #94a3b8;
-            --accent-gold: #f59e0b;
-            --accent-green: #059669;
-            --border-color: #1f2937;
-            --shadow-card: 0 10px 40px rgba(0, 0, 0, 0.7);
+            --bg-void: #05070d;
+            --bg-panel: #0e1729;
+            --bg-panel-2: #0b1220;
+            --bg-accent: #0a1220;
+
+            --accent-gold: #f2b544;
+            --accent-gold-soft: #fbcd6b;
+            --accent-emerald: #14b88a;
+            --accent-emerald-dim: #0d7a5c;
+            --accent-cyan: #4fd1e8;
+
+            --ink: #e8ecf4;
+            --ink-muted: #93a1b8;
+            --ink-faint: #5c6a82;
+            --line: #1d2942;
+            --line-soft: rgba(255,255,255,0.06);
+
+            --shadow-card: 0 24px 60px -12px rgba(0, 0, 0, 0.65);
+            --shadow-glow-gold: 0 0 30px rgba(242, 181, 68, 0.25);
+            --shadow-glow-emerald: 0 0 30px rgba(20, 184, 138, 0.25);
+
+            --font-display: 'Space Grotesk', 'Segoe UI', sans-serif;
+            --font-body: 'Inter', 'Segoe UI', sans-serif;
+            --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
+
+            --radius-lg: 22px;
+            --radius-md: 14px;
+            --radius-sm: 8px;
+        }
+
+        * { box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto; }
+            *, *::before, *::after {
+                animation-duration: 0.001ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.001ms !important;
+            }
         }
 
         body {
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            line-height: 1.8;
+            font-family: var(--font-body);
+            background-color: var(--bg-void);
+            background-image:
+                radial-gradient(ellipse 900px 500px at 15% -10%, rgba(20, 184, 138, 0.10), transparent 60%),
+                radial-gradient(ellipse 700px 500px at 100% 20%, rgba(242, 181, 68, 0.07), transparent 55%);
+            color: var(--ink);
+            line-height: 1.75;
             overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* Pantalla de Bienvenida - Tipo Panel de Acceso */
+        /* Textura de grano sutil (papel reciclado, no imagen) */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            opacity: 0.035;
+            z-index: 1;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        }
+
+        /* ============================================
+           BARRA DE PROGRESO — simula "escaneo" del expediente
+           ============================================ */
+        #barra-progreso {
+            position: fixed;
+            top: 0; left: 0;
+            height: 3px;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent-emerald), var(--accent-gold));
+            z-index: 3000;
+            transition: width 0.1s linear;
+            box-shadow: 0 0 10px rgba(242, 181, 68, 0.6);
+        }
+
+        /* ============================================
+           PANTALLA DE BIENVENIDA
+           ============================================ */
         #pantalla-bienvenida {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100vh;
-            background: radial-gradient(circle at center, var(--bg-panel) 0%, var(--bg-dark) 100%);
+            inset: 0;
+            background:
+                radial-gradient(circle at 50% 40%, rgba(20,184,138,0.12) 0%, transparent 55%),
+                var(--bg-void);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 2000;
-            transition: all 1.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            transition: opacity 1.1s cubic-bezier(0.65,0,0.35,1), transform 1.1s cubic-bezier(0.65,0,0.35,1), filter 1.1s ease;
             text-align: center;
-            padding: 20px;
-            box-sizing: border-box;
+            padding: 24px;
+        }
+
+        #pantalla-bienvenida::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent 0px,
+                transparent 3px,
+                rgba(255,255,255,0.012) 3px,
+                rgba(255,255,255,0.012) 4px
+            );
+            pointer-events: none;
+        }
+
+        .sello-clasificado {
+            font-family: var(--font-mono);
+            font-size: clamp(0.62rem, 2.2vw, 0.75rem);
+            letter-spacing: 3px;
+            color: var(--accent-emerald);
+            border: 1.5px solid var(--accent-emerald);
+            border-radius: 999px;
+            padding: 6px 16px;
+            text-transform: uppercase;
+            margin-bottom: 22px;
+            opacity: 0.9;
+            animation: parpadeoSello 2.4s ease-in-out infinite;
+        }
+
+        @keyframes parpadeoSello {
+            0%, 100% { opacity: 0.65; }
+            50% { opacity: 1; }
         }
 
         .bienvenida-logo {
-            max-width: 180px;
-            margin-bottom: 30px;
-            filter: drop-shadow(0 0 15px var(--accent-green));
-            animation: pulseGlow 3s infinite alternate;
+            max-width: 130px;
+            width: 28vw;
+            margin-bottom: 26px;
+            filter: drop-shadow(0 0 18px rgba(20,184,138,0.45));
+            animation: pulseGlow 3.2s infinite alternate;
         }
 
         @keyframes pulseGlow {
-            from { filter: drop-shadow(0 0 10px rgba(5, 150, 105, 0.3)); transform: scale(1); }
-            to { filter: drop-shadow(0 0 25px var(--accent-green)); transform: scale(1.05); }
+            from { filter: drop-shadow(0 0 8px rgba(20,184,138,0.25)); transform: scale(1); }
+            to   { filter: drop-shadow(0 0 26px rgba(20,184,138,0.55)); transform: scale(1.04); }
         }
 
         .titulo-bienvenida {
-            font-size: 2.5rem;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: clamp(1.65rem, 6.5vw, 2.7rem);
             color: var(--accent-gold);
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             text-transform: uppercase;
-            letter-spacing: 5px;
-            text-shadow: 0 0 15px var(--accent-gold);
+            letter-spacing: clamp(2px, 1vw, 5px);
+            text-shadow: 0 0 22px rgba(242,181,68,0.35);
         }
 
         .subtitulo-bienvenida {
-            font-size: 1.1rem;
-            color: var(--text-muted);
-            margin-bottom: 50px;
-            max-width: 500px;
+            font-size: clamp(0.9rem, 3vw, 1.1rem);
+            color: var(--ink-muted);
+            margin-bottom: 44px;
+            max-width: 480px;
+            padding: 0 8px;
         }
 
         .btn-iniciar {
-            padding: 18px 60px;
-            font-size: 1.3rem;
-            font-weight: bold;
-            color: var(--bg-dark);
-            background: linear-gradient(45deg, var(--accent-gold), #fbbf24);
+            padding: clamp(14px, 4vw, 18px) clamp(38px, 10vw, 60px);
+            font-family: var(--font-display);
+            font-size: clamp(1rem, 3.4vw, 1.25rem);
+            font-weight: 700;
+            color: #0b0f08;
+            background: linear-gradient(135deg, var(--accent-gold-soft), var(--accent-gold));
             border: none;
             border-radius: 40px;
             cursor: pointer;
-            box-shadow: 0 0 30px rgba(245, 158, 11, 0.4);
-            transition: all 0.3s ease;
+            box-shadow: 0 0 26px rgba(242, 181, 68, 0.35), inset 0 1px 0 rgba(255,255,255,0.4);
+            transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.35s ease;
             text-transform: uppercase;
-            letter-spacing: 3px;
+            letter-spacing: 2.5px;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }
 
-        .btn-iniciar:hover {
-            transform: translateY(-8px) scale(1.05);
-            box-shadow: 0 0 50px rgba(245, 158, 11, 0.8);
+        .btn-iniciar:hover, .btn-iniciar:focus-visible {
+            transform: translateY(-4px) scale(1.04);
+            box-shadow: 0 0 46px rgba(242, 181, 68, 0.6), inset 0 1px 0 rgba(255,255,255,0.5);
         }
+        .btn-iniciar:active { transform: translateY(-1px) scale(0.99); }
+        .btn-iniciar:focus-visible { outline: 3px solid var(--accent-cyan); outline-offset: 4px; }
 
-        /* Contenedor Principal de Contenido */
+        /* ============================================
+           CONTENIDO PRINCIPAL
+           ============================================ */
         #contenido-principal {
             display: none;
             max-width: 1100px;
             margin: 0 auto;
-            padding: 60px 20px;
+            padding: 48px 20px 80px;
+            position: relative;
+            z-index: 2;
         }
 
-        /* Efecto de Revelado y Transiciones (Giro y Flote) */
         .revelar-giro {
             opacity: 0;
-            transform: perspective(1000px) rotateX(40deg) translateY(60px);
-            transition: all 1.2s cubic-bezier(0.25, 1, 0.5, 1);
+            transform: perspective(1000px) rotateX(28deg) translateY(50px);
+            transition: opacity 1s cubic-bezier(0.25,1,0.5,1), transform 1s cubic-bezier(0.25,1,0.5,1);
         }
-
-        .revelar-giro.activo {
-            opacity: 1;
-            transform: perspective(1000px) rotateX(0deg) translateY(0);
-        }
+        .revelar-giro.activo { opacity: 1; transform: perspective(1000px) rotateX(0deg) translateY(0); }
 
         .revelar-entrada {
             opacity: 0;
-            transform: translateX(-50px);
-            transition: all 0.9s cubic-bezier(0.25, 1, 0.5, 1);
+            transform: translateX(-36px);
+            transition: opacity 0.85s cubic-bezier(0.25,1,0.5,1), transform 0.85s cubic-bezier(0.25,1,0.5,1);
         }
+        .revelar-entrada.activo { opacity: 1; transform: translateX(0); }
 
-        .revelar-entrada.activo {
-            opacity: 1;
-            transform: translateX(0);
-        }
-
-        /* Estilos de Secciones, Tarjetas e Imágenes de Fondo */
-        .panel {
-            background-color: var(--bg-panel);
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
-            padding: 40px;
-            margin-bottom: 50px;
-            box-shadow: var(--shadow-card);
-            position: relative;
-            overflow: hidden;
-        }
-
+        /* ============================================
+           ENCABEZADO
+           ============================================ */
         .panel-header-full {
-            display: grid;
-            grid-template-columns: 1fr auto;
-            gap: 20px;
+            display: flex;
             align-items: center;
-            border-bottom: 2px solid var(--accent-green);
-            padding-bottom: 20px;
-            margin-bottom: 30px;
+            justify-content: space-between;
+            gap: 18px;
+            border-bottom: 2px solid var(--accent-emerald);
+            padding-bottom: 22px;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
         }
 
         .panel-logo-small {
-            max-width: 70px;
-            filter: drop-shadow(0 0 5px var(--accent-green));
+            max-width: 58px;
+            width: 14vw;
+            min-width: 40px;
+            filter: drop-shadow(0 0 6px rgba(20,184,138,0.5));
+            flex-shrink: 0;
         }
 
         h1, h2, h3 {
             color: var(--accent-gold);
             margin-top: 0;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
+            font-family: var(--font-display);
         }
 
-        h1 { font-size: 2.5rem; text-align: center; margin-bottom: 5px; text-transform: uppercase; }
-        .investigadores-header { text-align: center; color: var(--text-muted); font-style: italic; margin-bottom: 40px; font-size: 1.1rem; }
+        h1 {
+            font-size: clamp(1.5rem, 5.5vw, 2.5rem);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            line-height: 1.25;
+            flex: 1;
+            min-width: 220px;
+        }
+
+        .investigadores-header {
+            text-align: center;
+            color: var(--ink-muted);
+            font-family: var(--font-mono);
+            font-size: clamp(0.75rem, 2.6vw, 0.95rem);
+            margin: 18px 0 40px;
+            letter-spacing: 0.5px;
+        }
+
+        .investigadores-header::before {
+            content: "// ";
+            color: var(--accent-emerald);
+        }
+
+        /* ============================================
+           PANELES / TARJETAS
+           ============================================ */
+        .panel {
+            background-color: var(--bg-panel);
+            border: 1px solid var(--line);
+            border-radius: var(--radius-lg);
+            padding: clamp(22px, 5vw, 40px);
+            margin-bottom: 40px;
+            box-shadow: var(--shadow-card);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .panel::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--line-soft), transparent);
+        }
+
+        .etiqueta-nivel {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--accent-emerald);
+            background: rgba(20,184,138,0.08);
+            border: 1px solid rgba(20,184,138,0.35);
+            border-radius: 6px;
+            padding: 5px 12px;
+            margin-bottom: 18px;
+        }
+
+        .etiqueta-nivel::before {
+            content: "";
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--accent-emerald);
+            box-shadow: 0 0 8px var(--accent-emerald);
+            flex-shrink: 0;
+        }
 
         .panel-content-with-img {
             display: grid;
-            grid-template-columns: 1fr 2fr;
-            gap: 30px;
+            grid-template-columns: 1fr 1.7fr;
+            gap: clamp(20px, 4vw, 32px);
             align-items: center;
         }
 
         .seccion-img {
             width: 100%;
-            border-radius: 12px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
-            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+            border: 1px solid var(--line);
+            display: block;
         }
 
         .destacado {
-            background: rgba(5, 150, 105, 0.1);
-            border-left: 4px solid var(--accent-green);
-            padding: 20px;
-            border-radius: 8px;
-            margin: 20px 0;
+            background: rgba(20, 184, 138, 0.08);
+            border-left: 3px solid var(--accent-emerald);
+            padding: 18px 20px;
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+            margin: 18px 0;
         }
 
-        /* Grid de Pasos del Procedimiento */
+        /* ============================================
+           GRID DE PASOS
+           ============================================ */
         .grid-pasos {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-            margin-top: 40px;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 26px;
+            margin-top: 36px;
         }
 
         .paso-card {
             background-color: var(--bg-accent);
-            border: 1px solid #2d3748;
-            border-radius: 15px;
+            border: 1px solid var(--line);
+            border-radius: var(--radius-md);
             padding: 20px;
-            transition: all 0.5s ease;
+            transition: transform 0.45s cubic-bezier(0.25,1,0.5,1), border-color 0.45s ease, box-shadow 0.45s ease;
             position: relative;
         }
 
         .paso-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--accent-green);
-            box-shadow: 0 5px 25px rgba(5, 150, 105, 0.2);
+            transform: translateY(-6px);
+            border-color: var(--accent-emerald);
+            box-shadow: var(--shadow-glow-emerald);
         }
 
         .paso-img-cont {
             width: 100%;
-            height: 180px;
+            aspect-ratio: 16 / 10;
             border-radius: 10px;
             overflow: hidden;
-            margin-bottom: 15px;
-            border: 1px solid var(--border-color);
+            margin-bottom: 16px;
+            border: 1px solid var(--line);
+            background: var(--bg-panel-2);
         }
 
         .paso-img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: transform 0.8s ease;
+            transition: transform 0.8s cubic-bezier(0.25,1,0.5,1);
         }
 
-        .paso-card:hover .paso-img {
-            transform: scale(1.1);
-        }
+        .paso-card:hover .paso-img { transform: scale(1.08); }
 
         .paso-numero {
             position: absolute;
-            top: -15px;
-            left: -15px;
-            width: 40px;
-            height: 40px;
-            background-color: var(--accent-green);
-            color: white;
+            top: -14px;
+            left: -14px;
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, var(--accent-emerald), var(--accent-emerald-dim));
+            color: #04140f;
             border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-weight: bold;
-            font-size: 1.2rem;
-            box-shadow: 0 0 15px var(--accent-green);
+            font-weight: 700;
+            font-family: var(--font-display);
+            font-size: 1.05rem;
+            box-shadow: 0 0 0 4px var(--bg-void), 0 0 16px rgba(20,184,138,0.6);
         }
 
-        .paso-titulo { font-size: 1.1rem; color: var(--accent-gold); font-weight: bold; margin-bottom: 8px; }
-        .paso-nota { font-size: 0.85rem; color: var(--text-muted); font-style: italic; background: rgba(0,0,0,0.3); padding: 5px; border-radius: 4px; display: inline-block; margin-top: 5px;}
+        .paso-titulo {
+            font-family: var(--font-display);
+            font-size: 1.08rem;
+            color: var(--accent-gold);
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
 
-        /* Tabla de Datos y Conclusión Full-Image */
+        .paso-nota {
+            font-family: var(--font-mono);
+            font-size: 0.78rem;
+            color: var(--ink-muted);
+            background: rgba(0,0,0,0.3);
+            padding: 8px 10px;
+            border-radius: 6px;
+            display: block;
+            margin-top: 10px;
+            border-left: 2px solid var(--accent-cyan);
+        }
+
+        /* ============================================
+           TABLA DE DATOS
+           ============================================ */
+        .tabla-envoltorio {
+            width: 100%;
+            overflow-x: auto;
+            border-radius: 12px;
+            margin-top: 20px;
+            -webkit-overflow-scrolling: touch;
+        }
+
         table {
             width: 100%;
+            min-width: 420px;
             border-collapse: collapse;
-            background-color: rgba(0, 0, 0, 0.3);
-            border-radius: 12px;
-            overflow: hidden;
-            margin-top: 20px;
+            background-color: rgba(0,0,0,0.25);
         }
 
-        th, td { padding: 18px; text-align: center; border-bottom: 1px solid var(--border-color); }
-        th { background-color: rgba(5, 150, 105, 0.1); color: var(--accent-green); text-transform: uppercase; font-size: 0.9rem; }
-        tr:last-child td { border-bottom: none; }
-
-        .panel-conclusion {
+        th, td {
+            padding: 14px 16px;
             text-align: center;
-            background: linear-gradient(to bottom, rgba(7, 10, 19, 0.9) 0%, rgba(17, 26, 46, 1) 100%), url('seccion_conclusion.jpg');
-            background-size: cover;
-            background-position: center;
-            color: white;
-            padding: 60px 40px;
+            border-bottom: 1px solid var(--line);
+            font-size: 0.92rem;
+            white-space: nowrap;
         }
 
+        th {
+            background-color: rgba(20,184,138,0.1);
+            color: var(--accent-emerald);
+            text-transform: uppercase;
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            letter-spacing: 1px;
+        }
+
+        tr:last-child td { border-bottom: none; }
+        tbody tr { transition: background 0.25s ease; }
+        tbody tr:hover { background: rgba(242,181,68,0.06); }
+
+        /* ============================================
+           CONCLUSIÓN
+           ============================================ */
+        .sello-verificado {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--accent-gold);
+            border: 1.5px dashed var(--accent-gold);
+            border-radius: 8px;
+            padding: 6px 14px;
+            transform: rotate(-3deg);
+            margin-bottom: 16px;
+        }
+
+        /* ============================================
+           PIE — nota final
+           ============================================ */
+        .pie-expediente {
+            text-align: center;
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            letter-spacing: 1.5px;
+            color: var(--ink-faint);
+            text-transform: uppercase;
+            margin-top: 30px;
+        }
+
+        /* ============================================
+           RESPONSIVE — MÓVILES
+           ============================================ */
+        @media (max-width: 720px) {
+            .panel-content-with-img {
+                grid-template-columns: 1fr;
+            }
+            .seccion-img {
+                max-height: 260px;
+                object-fit: cover;
+            }
+            .panel-header-full {
+                flex-direction: row;
+                align-items: center;
+            }
+            h1 { font-size: clamp(1.3rem, 6vw, 1.9rem); }
+        }
+
+        @media (max-width: 420px) {
+            #contenido-principal { padding: 36px 14px 60px; }
+            .panel { padding: 20px 16px; border-radius: 16px; margin-bottom: 28px; }
+            .paso-numero { width: 32px; height: 32px; font-size: 0.9rem; top: -10px; left: -10px; }
+            th, td { padding: 10px 8px; font-size: 0.82rem; }
+        }
     </style>
 </head>
 <body>
 
+    <div id="barra-progreso"></div>
+
     <div id="pantalla-bienvenida">
+        <div class="sello-clasificado">Nivel de acceso: investigador</div>
         <img src="logo.png" alt="Logotipo I.E." class="bienvenida-logo">
         <div class="titulo-bienvenida">Acceso Restringido</div>
-        <div class="subtitulo-bienvenida">Misión Científica Secreta - I.E. Juan Jiménez Pimentel.<br>Atención Investigadores: Los siguientes archivos contienen la información clasificada del proyecto. Procedan con rigor científico.</div>
+        <div class="subtitulo-bienvenida">Misión Científica Secreta — I.E. Juan Jiménez Pimentel.<br>Atención Investigadores: Los siguientes archivos contienen la información clasificada del proyecto. Procedan con rigor científico.</div>
         <button class="btn-iniciar" onclick="desencriptarExpediente()">Desencriptar Expediente</button>
     </div>
 
     <div id="contenido-principal">
-        
+
         <div class="revelar-entrada">
             <div class="panel-header-full">
                 <h1>🧑‍🔬 Expediente: Misión Papel Reciclado 🌍</h1>
                 <img src="logo.png" alt="Logotipo I.E." class="panel-logo-small">
             </div>
-            <div class="investigadores-header">Investigadores: Alondra y Dián Jheremy (6to Grado - Juan Jiménez Pimentel) </div>
+            <div class="investigadores-header">Investigadores: Alondra y Dián Jheremy (6to Grado — Juan Jiménez Pimentel)</div>
         </div>
 
         <div class="panel revelar-giro">
+            <span class="etiqueta-nivel">Fase 01 · Observación</span>
             <div class="panel-content-with-img">
                 <img src="seccion_problema.png" alt="Imagen del Problema" class="seccion-img">
                 <div>
-                    <h2>1. ¿Cuál es nuestro problema? 🗑️ </h2>
-                    <p>Abran bien los ojos en el colegio: ¿Se han dado cuenta de la cantidad de hojas sucias, exámenes viejos y hojas de cuaderno que botamos a la basura todos los días?  ¡Es muchísimo!  Si seguimos así, llenaremos el planeta de basura y se talarán más árboles. </p>
-                    <p>Todo científico empieza con una pregunta.  La nuestra es: ¿Qué pasaría si agarramos todo ese papel viejo del colegio y lo transformamos en papel nuevo para hacer tarjetas o libretas?  ¿Podremos reducir la basura del salón? </p>
+                    <h2>1. ¿Cuál es nuestro problema? 🗑️</h2>
+                    <p>Abran bien los ojos en el colegio: ¿Se han dado cuenta de la cantidad de hojas sucias, exámenes viejos y hojas de cuaderno que botamos a la basura todos los días? ¡Es muchísimo! Si seguimos así, llenaremos el planeta de basura y se talarán más árboles.</p>
+                    <p>Todo científico empieza con una pregunta. La nuestra es: ¿Qué pasaría si agarramos todo ese papel viejo del colegio y lo transformamos en papel nuevo para hacer tarjetas o libretas? ¿Podremos reducir la basura del salón?</p>
                 </div>
             </div>
         </div>
 
         <div class="panel revelar-giro">
+            <span class="etiqueta-nivel">Fase 02 · Fundamento científico</span>
             <div class="panel-content-with-img">
                 <img src="seccion_ciencia.png" alt="Imagen Científica de Pulpa" class="seccion-img">
                 <div>
@@ -316,21 +579,23 @@
         </div>
 
         <div class="panel revelar-giro">
+            <span class="etiqueta-nivel">Fase 03 · Hipótesis</span>
             <div class="panel-content-with-img">
                 <img src="seccion_hipotesis.png" alt="Imagen de Resultado de Hipótesis" class="seccion-img">
                 <div>
-                    <h2>3. La Hipótesis ("Adivinanza Inteligente") 💡 </h2>
-                    <p>En la ciencia, una hipótesis es simplemente decir lo que tú crees que va a pasar antes de hacer el experimento. </p>
+                    <h2>3. La Hipótesis ("Adivinanza Inteligente") 💡</h2>
+                    <p>En la ciencia, una hipótesis es simplemente decir lo que tú crees que va a pasar antes de hacer el experimento.</p>
                     <div class="destacado">
-                        <p style="color: var(--accent-gold); font-size: 1.2rem;">"Nosotros creemos que si licuamos el papel viejo con agua y lo ponemos a secar, lograremos crear un papel nuevo y fuerte. Así, habrá menos basura en el tacho de nuestro salón". </p>
+                        <p style="color: var(--accent-gold); font-size: 1.15rem; margin: 0;">"Nosotros creemos que si licuamos el papel viejo con agua y lo ponemos a secar, lograremos crear un papel nuevo y fuerte. Así, habrá menos basura en el tacho de nuestro salón".</p>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="panel revelar-entrada">
-            <h2 style="text-align: center;">4. ¡Manos a la obra! (Nuestro Plan Oficial) 🛠️ </h2>
-            <p style="text-align: center; color: var(--accent-gold); font-style: italic;">* IMPORTANTE: Tomar fotos cada paso y anotar todo en el cuaderno de campo.</p>
+            <span class="etiqueta-nivel">Fase 04 · Procedimiento</span>
+            <h2 style="text-align: center;">4. ¡Manos a la obra! (Nuestro Plan Oficial) 🛠️</h2>
+            <p style="text-align: center; color: var(--accent-gold-soft); font-style: italic;">* IMPORTANTE: Tomar fotos cada paso y anotar todo en el cuaderno de campo.</p>
 
             <div class="grid-pasos">
                 <div class="paso-card revelar-giro">
@@ -345,7 +610,7 @@
                     <div class="paso-img-cont"><img src="paso2_cortar.png" alt="Paso 2" class="paso-img"></div>
                     <div class="paso-titulo">Cortar el papel</div>
                     <p>Rasga o corta el papel en pedazos pequeños.</p>
-                    <div class="paso-nota">¿Por qué? Porque el agua penetra más rápido y las fibras se ablandan mejor.</div>
+                    <span class="paso-nota">¿Por qué? Porque el agua penetra más rápido y las fibras se ablandan mejor.</span>
                 </div>
 
                 <div class="paso-card revelar-giro">
@@ -353,7 +618,7 @@
                     <div class="paso-img-cont"><img src="paso3_remojar.png" alt="Paso 3" class="paso-img"></div>
                     <div class="paso-titulo">Remojar el papel</div>
                     <p>Coloca los trozos en un recipiente y agrega suficiente agua para cubrirlos. Déjalos reposar entre 12 y 24 horas.</p>
-                    <div class="paso-nota">¿Qué sucede? Las fibras absorben agua y el papel comienza a deshacerse.</div>
+                    <span class="paso-nota">¿Qué sucede? Las fibras absorben agua y el papel comienza a deshacerse.</span>
                 </div>
 
                 <div class="paso-card revelar-giro">
@@ -361,7 +626,7 @@
                     <div class="paso-img-cont"><img src="paso4_licuar.png" alt="Paso 4" class="paso-img"></div>
                     <div class="paso-titulo">Triturar o licuar</div>
                     <p>Coloca una pequeña cantidad de papel remojado en la licuadora. Añade agua y licúa durante 1 o 2 minutos.</p>
-                    <div class="paso-nota">¿Qué sucede? Las cuchillas rompen las fibras y forman una mezcla uniforme parecida a sopa espesa o avena líquida.</div>
+                    <span class="paso-nota">¿Qué sucede? Las cuchillas rompen las fibras y forman una mezcla uniforme parecida a sopa espesa o avena líquida.</span>
                 </div>
 
                 <div class="paso-card revelar-giro">
@@ -382,103 +647,103 @@
                     <div class="paso-numero">7</div>
                     <div class="paso-img-cont"><img src="paso7_secar.png" alt="Paso 7" class="paso-img"></div>
                     <div class="paso-titulo">Secar</div>
-                    <p>Se coloca la hoja sobre una tela absorbente y se presiona para eliminar el exceso de agua. Finalmente, se deja secar al sol. <br><strong>¡NUEVA HOJA DE PAPEL RECICLADO!</strong></p>
+                    <p>Se coloca la hoja sobre una tela absorbente y se presiona para eliminar el exceso de agua. Finalmente, se deja secar al sol.<br><strong>¡NUEVA HOJA DE PAPEL RECICLADO!</strong></p>
                 </div>
             </div>
         </div>
 
         <div class="panel revelar-giro">
+            <span class="etiqueta-nivel">Fase 05 · Registro de datos</span>
             <div class="panel-content-with-img">
                 <img src="seccion_datos.png" alt="Imagen de Datos y Cuaderno" class="seccion-img">
                 <div>
-                    <h2>5. Nuestro Cuaderno de Notas (Los Datos) 📝 </h2>
-                    <p>Un buen científico anota todo.  Cuando hagamos el experimento (vamos a intentarlo 2 veces), vamos a anotar: ¿Cuántos gramos de papel viejo usamos? [cite: 30, 31] ¿Cuántos gramos pesó nuestra hoja nueva? [cite: 30, 32] ¿Se rompió? ¿Quedó gruesa? ¿Quedó delgada? [cite: 30, 33]</p>
-                    <table>
-                        <thead><tr><th>DÍA</th><th>Papel recolectado (g)</th><th>Papel reciclado obtenido (g)</th></tr></thead>
-                        <tbody>
-                            <tr><td>Día 1</td><td>300</td><td>250</td></tr>
-                            <tr><td>Día 2</td><td>450</td><td>380</td></tr>
-                            <tr><td>Día 3</td><td>500</td><td>420</td></tr>
-                            <tr><td>Día 4</td><td>350</td><td>290</td></tr>
-                            <tr><td>Día 5</td><td>400</td><td>340</td></tr>
-                        </tbody>
-                    </table>
+                    <h2>5. Nuestro Cuaderno de Notas (Los Datos) 📝</h2>
+                    <p>Un buen científico anota todo. Cuando hagamos el experimento (vamos a intentarlo 2 veces), vamos a anotar: ¿Cuántos gramos de papel viejo usamos? ¿Cuántos gramos pesó nuestra hoja nueva? ¿Se rompió? ¿Quedó gruesa? ¿Quedó delgada?</p>
                 </div>
+            </div>
+            <div class="tabla-envoltorio">
+                <table>
+                    <thead><tr><th>Día</th><th>Papel recolectado (g)</th><th>Papel reciclado obtenido (g)</th></tr></thead>
+                    <tbody>
+                        <tr><td>Día 1</td><td>300</td><td>250</td></tr>
+                        <tr><td>Día 2</td><td>450</td><td>380</td></tr>
+                        <tr><td>Día 3</td><td>500</td><td>420</td></tr>
+                        <tr><td>Día 4</td><td>350</td><td>290</td></tr>
+                        <tr><td>Día 5</td><td>400</td><td>340</td></tr>
+                    </tbody>
+                </table>
             </div>
         </div>
 
         <div class="panel revelar-giro">
-    <div class="panel-content-with-img">
-        <img src="seccion_conclusion.png" alt="Imagen de Conclusiones" class="seccion-img">
-        
-        <div>
-            <h2 style="font-size: 2.2rem;">¿Qué descubrimos? (Las Conclusiones) 🏆</h2>
-            <div class="destacado" style="color: white; border-color: var(--accent-gold); font-size: 1.2rem; background: rgba(0,0,0,0.5);">
-                ¿Nuestra adivinanza (hipótesis) fue cierta? ¡Sí! Descubrimos que la basura se puede convertir en arte. 
+            <span class="etiqueta-nivel">Fase 06 · Conclusión</span>
+            <div class="panel-content-with-img">
+                <img src="seccion_conclusion.png" alt="Imagen de Conclusiones" class="seccion-img">
+                <div>
+                    <span class="sello-verificado">✓ Hipótesis verificada</span>
+                    <h2 style="font-size: clamp(1.4rem, 5vw, 2rem);">¿Qué descubrimos? (Las Conclusiones) 🏆</h2>
+                    <div class="destacado" style="color: white; border-color: var(--accent-gold); font-size: 1.1rem; background: rgba(0,0,0,0.4);">
+                        ¿Nuestra adivinanza (hipótesis) fue cierta? ¡Sí! Descubrimos que la basura se puede convertir en arte.
+                    </div>
+                    <p>Logramos hacer tarjetas y cuadernos con nuestro propio papel. Es una gran idea que todos los salones hagan esto para cuidar el medio ambiente en Tarapoto.</p>
+                </div>
             </div>
-            <p>Logramos hacer tarjetas y cuadernos con nuestro propio papel. Es una gran idea que todos los salones hagan esto para cuidar el medio ambiente en Tarapoto.</p>
         </div>
-    </div>
-</div>
+
+        <div class="pie-expediente">Fin del expediente · I.E. Juan Jiménez Pimentel · Tarapoto</div>
 
     </div>
 
     <script>
-        // Función para ocultar la bienvenida y revelar el panel con transiciones dramáticas
         function desencriptarExpediente() {
             const bienvenida = document.getElementById('pantalla-bienvenida');
             const contenido = document.getElementById('contenido-principal');
 
-            // Animación de salida de bienvenida (escala, desvanecimiento y giro)
-            bienvenida.style.transform = 'scale(1.2) rotateZ(5deg)';
+            bienvenida.style.transform = 'scale(1.15) rotateZ(3deg)';
             bienvenida.style.opacity = '0';
-            bienvenida.style.filter = 'blur(10px)';
-            
+            bienvenida.style.filter = 'blur(12px)';
+
             setTimeout(() => {
                 bienvenida.style.display = 'none';
                 contenido.style.display = 'block';
-                
-                // Activar el observador de scroll una vez que el contenido es visible
                 iniciarObservadorRevelado();
-                window.scrollTo(0, 0); // Asegurar que el scroll esté arriba
-            }, 1500); // Duración de la transición de CSS
+                iniciarBarraProgreso();
+                window.scrollTo(0, 0);
+            }, 1100);
         }
 
-        // Función para configurar el observador de revelado al hacer scroll
         function iniciarObservadorRevelado() {
-            // Seleccionar todos los elementos con clases de revelado
             const elementosRevelar = document.querySelectorAll('.revelar-giro, .revelar-entrada');
-            
-            // Forzar la aparición de los elementos iniciales que ya están en vista
+
             elementosRevelar.forEach((el, index) => {
                 const rect = el.getBoundingClientRect();
                 if (rect.top < window.innerHeight - 50) {
-                     // Retraso escalonado para los primeros elementos
-                    setTimeout(() => {
-                        el.classList.add('activo');
-                    }, index * 200); 
+                    setTimeout(() => { el.classList.add('activo'); }, index * 150);
                 }
             });
 
-            // Configurar el IntersectionObserver para el resto
             const observador = new IntersectionObserver((entradas) => {
                 entradas.forEach(entrada => {
                     if (entrada.isIntersecting) {
-                        // Agregar la clase activo para iniciar la animación CSS
                         entrada.target.classList.add('activo');
-                        // Desactivar el observador para este elemento una vez revelado
                         observador.unobserve(entrada.target);
                     }
                 });
-            }, {
-                threshold: 0.15, // Se activa cuando el 15% del elemento es visible
-                rootMargin: "0px 0px -80px 0px" // Margen inferior para iniciar antes
-            });
+            }, { threshold: 0.15, rootMargin: "0px 0px -60px 0px" });
 
-            // Observar cada elemento
-            elementosRevelar.forEach(elemento => {
-                observador.observe(elemento);
-            });
+            elementosRevelar.forEach(elemento => observador.observe(elemento));
+        }
+
+        function iniciarBarraProgreso() {
+            const barra = document.getElementById('barra-progreso');
+            const actualizar = () => {
+                const scrollTop = window.scrollY;
+                const alturaTotal = document.documentElement.scrollHeight - window.innerHeight;
+                const porcentaje = alturaTotal > 0 ? (scrollTop / alturaTotal) * 100 : 0;
+                barra.style.width = porcentaje + '%';
+            };
+            window.addEventListener('scroll', actualizar, { passive: true });
+            actualizar();
         }
     </script>
 </body>
