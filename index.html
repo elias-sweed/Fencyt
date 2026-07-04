@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expediente Clasificado: Misión Papel Reciclado</title>
+    <style>
+        /* Variables de Color y Diseño - Estilo Formal y Oscuro */
+        :root {
+            --bg-dark: #070a13;
+            --bg-panel: #111a2e;
+            --bg-accent: #0f172a;
+            --text-main: #d1d5db;
+            --text-muted: #94a3b8;
+            --accent-gold: #f59e0b;
+            --accent-green: #059669;
+            --border-color: #1f2937;
+            --shadow-card: 0 10px 40px rgba(0, 0, 0, 0.7);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            line-height: 1.8;
+            overflow-x: hidden;
+        }
+
+        /* Pantalla de Bienvenida - Tipo Panel de Acceso */
+        #pantalla-bienvenida {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: radial-gradient(circle at center, var(--bg-panel) 0%, var(--bg-dark) 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            transition: all 1.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .bienvenida-logo {
+            max-width: 180px;
+            margin-bottom: 30px;
+            filter: drop-shadow(0 0 15px var(--accent-green));
+            animation: pulseGlow 3s infinite alternate;
+        }
+
+        @keyframes pulseGlow {
+            from { filter: drop-shadow(0 0 10px rgba(5, 150, 105, 0.3)); transform: scale(1); }
+            to { filter: drop-shadow(0 0 25px var(--accent-green)); transform: scale(1.05); }
+        }
+
+        .titulo-bienvenida {
+            font-size: 2.5rem;
+            color: var(--accent-gold);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            text-shadow: 0 0 15px var(--accent-gold);
+        }
+
+        .subtitulo-bienvenida {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            margin-bottom: 50px;
+            max-width: 500px;
+        }
+
+        .btn-iniciar {
+            padding: 18px 60px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--bg-dark);
+            background: linear-gradient(45deg, var(--accent-gold), #fbbf24);
+            border: none;
+            border-radius: 40px;
+            cursor: pointer;
+            box-shadow: 0 0 30px rgba(245, 158, 11, 0.4);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        .btn-iniciar:hover {
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 0 0 50px rgba(245, 158, 11, 0.8);
+        }
+
+        /* Contenedor Principal de Contenido */
+        #contenido-principal {
+            display: none;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        /* Efecto de Revelado y Transiciones (Giro y Flote) */
+        .revelar-giro {
+            opacity: 0;
+            transform: perspective(1000px) rotateX(40deg) translateY(60px);
+            transition: all 1.2s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .revelar-giro.activo {
+            opacity: 1;
+            transform: perspective(1000px) rotateX(0deg) translateY(0);
+        }
+
+        .revelar-entrada {
+            opacity: 0;
+            transform: translateX(-50px);
+            transition: all 0.9s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .revelar-entrada.activo {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Estilos de Secciones, Tarjetas e Imágenes de Fondo */
+        .panel {
+            background-color: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 50px;
+            box-shadow: var(--shadow-card);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .panel-header-full {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 20px;
+            align-items: center;
+            border-bottom: 2px solid var(--accent-green);
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .panel-logo-small {
+            max-width: 70px;
+            filter: drop-shadow(0 0 5px var(--accent-green));
+        }
+
+        h1, h2, h3 {
+            color: var(--accent-gold);
+            margin-top: 0;
+            letter-spacing: 1px;
+        }
+
+        h1 { font-size: 2.5rem; text-align: center; margin-bottom: 5px; text-transform: uppercase; }
+        .investigadores-header { text-align: center; color: var(--text-muted); font-style: italic; margin-bottom: 40px; font-size: 1.1rem; }
+
+        .panel-content-with-img {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .seccion-img {
+            width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+            border: 2px solid var(--border-color);
+        }
+
+        .destacado {
+            background: rgba(5, 150, 105, 0.1);
+            border-left: 4px solid var(--accent-green);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        /* Grid de Pasos del Procedimiento */
+        .grid-pasos {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .paso-card {
+            background-color: var(--bg-accent);
+            border: 1px solid #2d3748;
+            border-radius: 15px;
+            padding: 20px;
+            transition: all 0.5s ease;
+            position: relative;
+        }
+
+        .paso-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-green);
+            box-shadow: 0 5px 25px rgba(5, 150, 105, 0.2);
+        }
+
+        .paso-img-cont {
+            width: 100%;
+            height: 180px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 15px;
+            border: 1px solid var(--border-color);
+        }
+
+        .paso-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.8s ease;
+        }
+
+        .paso-card:hover .paso-img {
+            transform: scale(1.1);
+        }
+
+        .paso-numero {
+            position: absolute;
+            top: -15px;
+            left: -15px;
+            width: 40px;
+            height: 40px;
+            background-color: var(--accent-green);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            box-shadow: 0 0 15px var(--accent-green);
+        }
+
+        .paso-titulo { font-size: 1.1rem; color: var(--accent-gold); font-weight: bold; margin-bottom: 8px; }
+        .paso-nota { font-size: 0.85rem; color: var(--text-muted); font-style: italic; background: rgba(0,0,0,0.3); padding: 5px; border-radius: 4px; display: inline-block; margin-top: 5px;}
+
+        /* Tabla de Datos y Conclusión Full-Image */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+
+        th, td { padding: 18px; text-align: center; border-bottom: 1px solid var(--border-color); }
+        th { background-color: rgba(5, 150, 105, 0.1); color: var(--accent-green); text-transform: uppercase; font-size: 0.9rem; }
+        tr:last-child td { border-bottom: none; }
+
+        .panel-conclusion {
+            text-align: center;
+            background: linear-gradient(to bottom, rgba(7, 10, 19, 0.9) 0%, rgba(17, 26, 46, 1) 100%), url('seccion_conclusion.jpg');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 60px 40px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="pantalla-bienvenida">
+        <img src="logo.png" alt="Logotipo I.E." class="bienvenida-logo">
+        <div class="titulo-bienvenida">Acceso Restringido</div>
+        <div class="subtitulo-bienvenida">Misión Científica Secreta - I.E. Juan Jiménez Pimentel.<br>Atención Investigadores: Los siguientes archivos contienen la información clasificada del proyecto. Procedan con rigor científico.</div>
+        <button class="btn-iniciar" onclick="desencriptarExpediente()">Desencriptar Expediente</button>
+    </div>
+
+    <div id="contenido-principal">
+        
+        <div class="revelar-entrada">
+            <div class="panel-header-full">
+                <h1>🧑‍🔬 Expediente: Misión Papel Reciclado 🌍</h1>
+                <img src="logo.png" alt="Logotipo I.E." class="panel-logo-small">
+            </div>
+            <div class="investigadores-header">Investigadores: Alondra y Dián Jheremy (6to Grado - Juan Jiménez Pimentel) </div>
+        </div>
+
+        <div class="panel revelar-giro">
+            <div class="panel-content-with-img">
+                <img src="seccion_problema.png" alt="Imagen del Problema" class="seccion-img">
+                <div>
+                    <h2>1. ¿Cuál es nuestro problema? 🗑️ </h2>
+                    <p>Abran bien los ojos en el colegio: ¿Se han dado cuenta de la cantidad de hojas sucias, exámenes viejos y hojas de cuaderno que botamos a la basura todos los días?  ¡Es muchísimo!  Si seguimos así, llenaremos el planeta de basura y se talarán más árboles. </p>
+                    <p>Todo científico empieza con una pregunta.  La nuestra es: ¿Qué pasaría si agarramos todo ese papel viejo del colegio y lo transformamos en papel nuevo para hacer tarjetas o libretas?  ¿Podremos reducir la basura del salón? </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel revelar-giro">
+            <div class="panel-content-with-img">
+                <img src="seccion_ciencia.png" alt="Imagen Científica de Pulpa" class="seccion-img">
+                <div>
+                    <h2>2. La Ciencia del Papel 🔬</h2>
+                    <div class="destacado">
+                        <strong>¿Qué es la pulpa de papel?</strong> Es una masa húmeda formada por pequeñas fibras de papel deshechas en agua. Es la materia prima con la que luego se fabrican las nuevas hojas recicladas.
+                    </div>
+                    <p><strong>¿Qué ocurre con el papel durante el proceso?</strong> El papel está formado por fibras vegetales. Cuando lo cortamos, remojamos y licuamos, esas fibras se separan y se mezclan con el agua formando una pasta llamada pulpa.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel revelar-giro">
+            <div class="panel-content-with-img">
+                <img src="seccion_hipotesis.png" alt="Imagen de Resultado de Hipótesis" class="seccion-img">
+                <div>
+                    <h2>3. La Hipótesis ("Adivinanza Inteligente") 💡 </h2>
+                    <p>En la ciencia, una hipótesis es simplemente decir lo que tú crees que va a pasar antes de hacer el experimento. </p>
+                    <div class="destacado">
+                        <p style="color: var(--accent-gold); font-size: 1.2rem;">"Nosotros creemos que si licuamos el papel viejo con agua y lo ponemos a secar, lograremos crear un papel nuevo y fuerte. Así, habrá menos basura en el tacho de nuestro salón". </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel revelar-entrada">
+            <h2 style="text-align: center;">4. ¡Manos a la obra! (Nuestro Plan Oficial) 🛠️ </h2>
+            <p style="text-align: center; color: var(--accent-gold); font-style: italic;">* IMPORTANTE: Tomar fotos cada paso y anotar todo en el cuaderno de campo.</p>
+
+            <div class="grid-pasos">
+                <div class="paso-card revelar-giro">
+                    <div class="paso-numero">1</div>
+                    <div class="paso-img-cont"><img src="paso1_recolectar.png" alt="Paso 1" class="paso-img"></div>
+                    <div class="paso-titulo">Recolectar y Seleccionar</div>
+                    <p>Reúne papel usado que esté limpio, como: Hojas de cuaderno escritas, papel bond, fotocopias. <strong>Retira:</strong> Grapas, cinta adhesiva, plásticos, cartones gruesos.</p>
+                </div>
+
+                <div class="paso-card revelar-giro">
+                    <div class="paso-numero">2</div>
+                    <div class="paso-img-cont"><img src="paso2_cortar.png" alt="Paso 2" class="paso-img"></div>
+                    <div class="paso-titulo">Cortar el papel</div>
+                    <p>Rasga o corta el papel en pedazos pequeños.</p>
+                    <div class="paso-nota">¿Por qué? Porque el agua penetra más rápido y las fibras se ablandan mejor.</div>
+                </div>
+
+                <div class="paso-card revelar-giro">
+                    <div class="paso-numero">3</div>
+                    <div class="paso-img-cont"><img src="paso3_remojar.png" alt="Paso 3" class="paso-img"></div>
+                    <div class="paso-titulo">Remojar el papel</div>
+                    <p>Coloca los trozos en un recipiente y agrega suficiente agua para cubrirlos. Déjalos reposar entre 12 y 24 horas.</p>
+                    <div class="paso-nota">¿Qué sucede? Las fibras absorben agua y el papel comienza a deshacerse.</div>
+                </div>
+
+                <div class="paso-card revelar-giro">
+                    <div class="paso-numero">4</div>
+                    <div class="paso-img-cont"><img src="paso4_licuar.png" alt="Paso 4" class="paso-img"></div>
+                    <div class="paso-titulo">Triturar o licuar</div>
+                    <p>Coloca una pequeña cantidad de papel remojado en la licuadora. Añade agua y licúa durante 1 o 2 minutos.</p>
+                    <div class="paso-nota">¿Qué sucede? Las cuchillas rompen las fibras y forman una mezcla uniforme parecida a sopa espesa o avena líquida.</div>
+                </div>
+
+                <div class="paso-card revelar-giro">
+                    <div class="paso-numero">5</div>
+                    <div class="paso-img-cont"><img src="paso5_pulpa.png" alt="Paso 5" class="paso-img"></div>
+                    <div class="paso-titulo">Obtener la pulpa</div>
+                    <p>Al terminar de licuar, tendrás una pasta gris o blanquecina. Esta es la pulpa de papel. <br><em>Ejemplo: 100 g de papel usado + 500 ml de agua.</em></p>
+                </div>
+
+                <div class="paso-card revelar-giro">
+                    <div class="paso-numero">6</div>
+                    <div class="paso-img-cont"><img src="paso6_formar.png" alt="Paso 6" class="paso-img"></div>
+                    <div class="paso-titulo">Formar una nueva hoja</div>
+                    <p>La pulpa se vierte en una bandeja con agua. Luego se introduce un marco con malla para recoger una capa delgada de fibras. Al levantar la malla, las fibras quedan distribuidas formando una hoja.</p>
+                </div>
+
+                <div class="paso-card revelar-giro">
+                    <div class="paso-numero">7</div>
+                    <div class="paso-img-cont"><img src="paso7_secar.png" alt="Paso 7" class="paso-img"></div>
+                    <div class="paso-titulo">Secar</div>
+                    <p>Se coloca la hoja sobre una tela absorbente y se presiona para eliminar el exceso de agua. Finalmente, se deja secar al sol. <br><strong>¡NUEVA HOJA DE PAPEL RECICLADO!</strong></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel revelar-giro">
+            <div class="panel-content-with-img">
+                <img src="seccion_datos.png" alt="Imagen de Datos y Cuaderno" class="seccion-img">
+                <div>
+                    <h2>5. Nuestro Cuaderno de Notas (Los Datos) 📝 </h2>
+                    <p>Un buen científico anota todo.  Cuando hagamos el experimento (vamos a intentarlo 2 veces), vamos a anotar: ¿Cuántos gramos de papel viejo usamos? [cite: 30, 31] ¿Cuántos gramos pesó nuestra hoja nueva? [cite: 30, 32] ¿Se rompió? ¿Quedó gruesa? ¿Quedó delgada? [cite: 30, 33]</p>
+                    <table>
+                        <thead><tr><th>DÍA</th><th>Papel recolectado (g)</th><th>Papel reciclado obtenido (g)</th></tr></thead>
+                        <tbody>
+                            <tr><td>Día 1</td><td>300</td><td>250</td></tr>
+                            <tr><td>Día 2</td><td>450</td><td>380</td></tr>
+                            <tr><td>Día 3</td><td>500</td><td>420</td></tr>
+                            <tr><td>Día 4</td><td>350</td><td>290</td></tr>
+                            <tr><td>Día 5</td><td>400</td><td>340</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel revelar-giro">
+    <div class="panel-content-with-img">
+        <img src="seccion_conclusion.png" alt="Imagen de Conclusiones" class="seccion-img">
+        
+        <div>
+            <h2 style="font-size: 2.2rem;">¿Qué descubrimos? (Las Conclusiones) 🏆</h2>
+            <div class="destacado" style="color: white; border-color: var(--accent-gold); font-size: 1.2rem; background: rgba(0,0,0,0.5);">
+                ¿Nuestra adivinanza (hipótesis) fue cierta? ¡Sí! Descubrimos que la basura se puede convertir en arte. 
+            </div>
+            <p>Logramos hacer tarjetas y cuadernos con nuestro propio papel. Es una gran idea que todos los salones hagan esto para cuidar el medio ambiente en Tarapoto.</p>
+        </div>
+    </div>
+</div>
+
+    </div>
+
+    <script>
+        // Función para ocultar la bienvenida y revelar el panel con transiciones dramáticas
+        function desencriptarExpediente() {
+            const bienvenida = document.getElementById('pantalla-bienvenida');
+            const contenido = document.getElementById('contenido-principal');
+
+            // Animación de salida de bienvenida (escala, desvanecimiento y giro)
+            bienvenida.style.transform = 'scale(1.2) rotateZ(5deg)';
+            bienvenida.style.opacity = '0';
+            bienvenida.style.filter = 'blur(10px)';
+            
+            setTimeout(() => {
+                bienvenida.style.display = 'none';
+                contenido.style.display = 'block';
+                
+                // Activar el observador de scroll una vez que el contenido es visible
+                iniciarObservadorRevelado();
+                window.scrollTo(0, 0); // Asegurar que el scroll esté arriba
+            }, 1500); // Duración de la transición de CSS
+        }
+
+        // Función para configurar el observador de revelado al hacer scroll
+        function iniciarObservadorRevelado() {
+            // Seleccionar todos los elementos con clases de revelado
+            const elementosRevelar = document.querySelectorAll('.revelar-giro, .revelar-entrada');
+            
+            // Forzar la aparición de los elementos iniciales que ya están en vista
+            elementosRevelar.forEach((el, index) => {
+                const rect = el.getBoundingClientRect();
+                if (rect.top < window.innerHeight - 50) {
+                     // Retraso escalonado para los primeros elementos
+                    setTimeout(() => {
+                        el.classList.add('activo');
+                    }, index * 200); 
+                }
+            });
+
+            // Configurar el IntersectionObserver para el resto
+            const observador = new IntersectionObserver((entradas) => {
+                entradas.forEach(entrada => {
+                    if (entrada.isIntersecting) {
+                        // Agregar la clase activo para iniciar la animación CSS
+                        entrada.target.classList.add('activo');
+                        // Desactivar el observador para este elemento una vez revelado
+                        observador.unobserve(entrada.target);
+                    }
+                });
+            }, {
+                threshold: 0.15, // Se activa cuando el 15% del elemento es visible
+                rootMargin: "0px 0px -80px 0px" // Margen inferior para iniciar antes
+            });
+
+            // Observar cada elemento
+            elementosRevelar.forEach(elemento => {
+                observador.observe(elemento);
+            });
+        }
+    </script>
+</body>
+</html>
